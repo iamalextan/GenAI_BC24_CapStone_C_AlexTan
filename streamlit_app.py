@@ -70,13 +70,12 @@ else:
             response = st.write_stream(stream)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
+bs4 = st.checkbox("Use BeautifulSoup to scrape the web page: https://www.cpf.gov.sg/member/growing-your-savings/earning-higher-returns/earning-attractive-interest to get the latest interest rates")
 #use beautifulsoap to scrape the web page: https://www.cpf.gov.sg/member/growing-your-savings/earning-higher-returns/earning-attractive-interest
 #to get the latest interest rates
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
-
-bs4 = st.checkbox("Use BeautifulSoup to scrape the web page: https://www.cpf.gov.sg/member/growing-your-savings/earning-higher-returns/earning-attractive-interest to get the latest interest rates")
 
 if bs4:
     url = 'https://www.cpf.gov.sg/member/growing-your-savings/earning-higher-returns/earning-attractive-interest'
