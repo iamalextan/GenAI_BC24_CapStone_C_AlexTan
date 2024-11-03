@@ -76,23 +76,30 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 
-url = 'https://www.cpf.gov.sg/member/growing-your-savings/earning-higher-returns/earning-attractive-interest'
-page = requests.get(url)
-soup = BeautifulSoup(page.content, 'html.parser')
-table = soup.find_all('table')[0]
-df = pd.read_html(str(table))
-df = df[0]
-df = df.dropna()
-df.columns = df.iloc[0]
-df = df[1:]
-df = df.reset_index(drop=True)
-df = df.rename(columns={'Account': 'Account Type', 'Current': 'Current Rate', 'From': 'From Date', 'To': 'To Date'})
-df['From Date'] = pd.to_datetime(df['From Date'])
-df['To Date'] = pd.to_datetime(df['To Date'])
-df['Current Rate'] = df['Current Rate'].str.replace('%', '').astype(float)
-df = df.sort_values(by='From Date', ascending=False)
-df = df.reset_index(drop=True)
-df = df.drop(columns=['From Date', 'To Date'])
-df = df.set_index('Account Type')
+bs4 = st.checkbox("Use BeautifulSoup to scrape the web page: https://www.cpf.gov.sg/member/growing-your-savings/earning-higher-returns/earning-attractive-interest to get the latest interest rates")
 
-st.write(df)
+if bs4:
+    url = 'https://www.cpf.gov.sg/member/growing-your-savings/earning-higher-returns/earning-attractive-interest'
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    table = soup.find_all('table')[0]
+    df = pd.read_html(str(table))
+    df = df[0]
+    df = df.dropna()
+    df.columns = df.iloc[0]
+    df = df[1:]
+    df = df.reset_index(drop=True)
+    df = df.rename(columns={'Account': 'Account Type', 'Current': 'Current Rate', 'From': 'From Date', 'To': 'To Date'})
+    df['From Date'] = pd.to_datetime(df['From Date'])
+    df['To Date'] = pd.to_datetime(df['To Date'])
+    df['Current Rate'] = df['Current Rate'].str.replace('%', '').astype(float)
+    df = df.sort_values(by='From Date', ascending=False)
+    df = df.reset_index(drop=True)
+    df = df.drop(columns=['From Date', 'To Date'])
+    df = df.set_index('Account Type')
+
+    st.write(df)
+
+# Show a placeholder while the chatbot is loading.
+if openai_api_key and not st.session_state.messages:
+    st.info("Please start the conversation by typing a message.", icon="💬")
