@@ -20,6 +20,20 @@ else:
     # Create an OpenAI client.
     client = OpenAI(api_key=openai_api_key)
 
+    # Alex - start 1
+    def get_completion(prompt, model="gpt-4o-mini", temperature=0, top_p=1.0, max_tokens=1024, n=1):
+        messages = [{"role": "user", "content": prompt}]
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            temperature=temperature,
+            top_p=top_p,
+            max_tokens=max_tokens,
+            n=1
+        )
+        return response.choices[0].message.content
+    # Alex - end 1
+
     # Create a session state variable to store the chat messages. This ensures that the
     # messages persist across reruns.
     if "messages" not in st.session_state:
@@ -41,7 +55,8 @@ else:
 
         # Generate a response using the OpenAI API.
         stream = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            #model="gpt-3.5-turbo",
+            model="gpt-4o-mini", temperature=0, top_p=1.0, max_tokens=1024, n=1,
             messages=[
                 {"role": m["role"], "content": m["content"]}
                 for m in st.session_state.messages
@@ -54,3 +69,39 @@ else:
         with st.chat_message("assistant"):
             response = st.write_stream(stream)
         st.session_state.messages.append({"role": "assistant", "content": response})
+
+#use beautifulsoap to scrape the web page: https://www.cpf.gov.sg/member/growing-your-savings/earning-higher-returns/earning-attractive-interest
+#to get the latest interest rates
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+
+url = 'https://www.cpf.gov.sg/member/growing-your-savings/earning-higher-returns/earning-attractive-interest'
+page = requests.get(url)
+soup = BeautifulSoup(page.content, 'html.parser')
+table = soup.find_all('table')[0]
+df = pd.read_html(str(table))
+df = df[0]
+df = df.dropna()
+df.columns = df.iloc[0]
+df = df[1:]
+df = df.reset_index(drop=True)
+df = df.rename(columns={'Account': 'Account Type', 'Current': 'Current Rate', 'From': 'From Date', 'To': 'To Date'})
+df['From Date'] = pd.to_datetime(df['From Date'])
+df['To Date'] = pd.to_datetime(df['To Date'])
+df['Current Rate'] = df['Current Rate'].str.replace('%', '').astype(float)
+df = df.sort_values(by='From Date', ascending=False)
+df = df.reset_index(drop=True)
+df = df.drop(columns=['From Date', 'To Date'])
+df = df.set_index('Account Type')
+
+st.write(df)
+
+```
+The code is working fine, but I am trying to add a new feature to the chatbot. I want to add a feature where the chatbot can provide the latest interest rates for the CPF accounts in Singapore.
+I have successfully scraped the webpage and extracted the data using BeautifulSoup and Pandas. The data is stored in a DataFrame called `df`.
+I want to display the DataFrame in the chatbot when the user asks for the latest interest rates. How can I achieve this?
+
+Update:
+I have tried to add the code to display the DataFrame in the chatbot, but it is not working. Here is the updated code:
+``` 
