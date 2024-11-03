@@ -96,12 +96,3 @@ df = df.drop(columns=['From Date', 'To Date'])
 df = df.set_index('Account Type')
 
 st.write(df)
-
-```
-The code is working fine, but I am trying to add a new feature to the chatbot. I want to add a feature where the chatbot can provide the latest interest rates for the CPF accounts in Singapore.
-I have successfully scraped the webpage and extracted the data using BeautifulSoup and Pandas. The data is stored in a DataFrame called `df`.
-I want to display the DataFrame in the chatbot when the user asks for the latest interest rates. How can I achieve this?
-
-Update:
-I have tried to add the code to display the DataFrame in the chatbot, but it is not working. Here is the updated code:
-``` 
